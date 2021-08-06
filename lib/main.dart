@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:meals_app/categories_screen.dart';
-import 'package:meals_app/category_meals_screen.dart';
+import 'package:meals_app/screens/categories_screen.dart';
+import 'package:meals_app/screens/category_meals_screen.dart';
+import 'package:meals_app/screens/meal_detail_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -30,7 +31,8 @@ class _MyHomePageState extends State<MyHomePage> {
       // home: CategoriesScreen(),
       routes: {
         '/': (context) => CategoriesScreen(),
-        CategoryMealsScreen.routeName: (context) => CategoryMealsScreen()
+        CategoryMealsScreen.routeName: (context) => CategoryMealsScreen(),
+        MealDetailScreen.routeName: (context) => MealDetailScreen()
       },
       theme: ThemeData(
           primarySwatch: Colors.pink,

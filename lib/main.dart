@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:meals_app/dummy_data.dart';
+import 'package:meals_app/models/Meal.dart';
 import 'package:meals_app/screens/categories_screen.dart';
 import 'package:meals_app/screens/category_meals_screen.dart';
 import 'package:meals_app/screens/favorites_screen.dart';
@@ -27,17 +29,70 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  Map<String, bool> _filters = {
+    'gluten': false,
+    'lactose': false,
+    'vegan': false,
+    'vegetarian': false,
+  };
+
+  List<Meal> _availableMeals = DUMMY_MEALS;
+  List<Meal> _favoriteMeals = [];
+
+  void _setFilters(Map<String, bool> filterData) {
+    setState(() {
+      _filters = filterData;
+      print(filterData);
+      _availableMeals = DUMMY_MEALS.where((meal) {
+        if ((_filters['gluten'] ?? false) && !meal.isGlutenFree) {
+          return false;
+        }
+        if ((_filters['lactose'] ?? false) && !meal.isLactoseFree) {
+          return false;
+        }
+        if ((_filters['vegan'] ?? false) && !meal.isVegan) {
+          return false;
+        }
+        if ((_filters['vegetarian'] ?? false) && !meal.isVegetarian) {
+          return false;
+        }
+        return true;
+      }).toList();
+    });
+  }
+
+  void _toggleFavorite(String mealId) {
+    final existingIndex =
+        _favoriteMeals.indexWhere((element) => element.id == mealId);
+
+    setState(() {
+      if (existingIndex >= 0) {
+        _favoriteMeals.removeAt(existingIndex);
+      } else {
+        _favoriteMeals
+            .add(DUMMY_MEALS.firstWhere((element) => element.id == mealId));
+      }
+    });
+  }
+
+  bool _isMealFavorite(String id) {
+    return _favoriteMeals.any((meal) => meal.id == id);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'DeliMeals',
       // home: CategoriesScreen(),
       routes: {
-        '/': (context) => TabsScreen(),
-        CategoryMealsScreen.routeName: (context) => CategoryMealsScreen(),
-        MealDetailScreen.routeName: (context) => MealDetailScreen(),
-        FiltersScreen.routeName: (context) => FiltersScreen(),
-        FavoritesScreen.routeName: (context) => FavoritesScreen(),
+        '/': (context) => TabsScreen(_favoriteMeals),
+        CategoryMealsScreen.routeName: (context) =>
+            CategoryMealsScreen(_availableMeals),
+        MealDetailScreen.routeName: (context) =>
+            MealDetailScreen(_toggleFavorite, _isMealFavorite),
+        FiltersScreen.routeName: (context) =>
+            FiltersScreen(_filters, _setFilters),
+        FavoritesScreen.routeName: (context) => FavoritesScreen(_favoriteMeals),
       },
       theme: ThemeData(
           primarySwatch: Colors.pink,
